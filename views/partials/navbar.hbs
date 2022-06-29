@@ -1,0 +1,51 @@
+<nav class="green darken-4">
+    <div class="nav-wrapper">
+    <a href="#" class="brand-logo right">ToDoList</a>
+    <ul id="nav-mobile" class="left hide-on-med-and-down">
+
+        {{#if username}}
+        {{#if isIndex}}
+        <li class="active"><a href="/">Todos</a></li>
+        {{else}}
+        <li><a href="/">Todos</a></li>
+        {{/if}}
+        {{#if isCreate}}
+        <li class="active"><a href="/create">Create</a></li>
+        {{else}}
+        <li><a href="/create">Create</a></li>
+        {{/if}}
+        {{#if isLogOut}}
+        <li class="active"><a href="/logout">Logout</a></li>
+        {{else}}
+        <li><a href="/logout">Logout</a></li>
+        {{/if}}
+        {{else}}
+        {{#if isLogin}}
+        <li class="active"><a href="/login">Login</a></li>
+        {{else}}
+        <li><a href="/login">Login</a></li>
+        {{/if}}
+        {{#if isSignUp}}
+        <li class="active"><a href="/signup">Registration</a></li>
+        {{else}}
+        <li><a href="/signup">Registration</a></li>
+        {{/if}}
+        {{/if}}
+
+        
+
+        
+
+        
+        
+        
+
+        
+        
+        
+
+        
+        
+    </ul>
+    </div>
+</nav>
