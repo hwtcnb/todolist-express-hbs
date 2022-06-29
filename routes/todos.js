@@ -5,42 +5,39 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const keys = require('../config/keys')
 
-
 const router = Router();
 
-function parseJwt(token) {
-    return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-}
-
 router.get('/', async (req, res) => {
-    let token = req.headers.cookie
-    token = token.slice(6)
-    jwt.verify(token, keys.jwt, async function (err, decoded) {
-        if (!err) {
-            const username = parseJwt(token).userName
-            const user = await User.findOne({ username }).lean()
-            const todos = user.titles
-            res.render('index', {
-                title: 'Todo page',
-                isIndex: true,
-                todos,
-                username
-            })
-        } else {
-            res.redirect('/login')
-        }
-    })
+    try {
+        const token = req.headers.cookie.split('=')[1]
+        jwt.verify(token, keys.jwt, async function (err, decoded) {
+            if (!err) {
+                const user = await User.findOne({ username: decoded.userName }).lean()
+                const todos = user.titles
+                res.render('index', {
+                    title: 'Todo page',
+                    isIndex: true,
+                    todos,
+                    username: decoded.userName
+                })
+            } else {
+                res.redirect('/login')
+            }
+        })
+    } catch {
+        res.cookie('token', null)
+        res.redirect('/login')
+    }
+    
 
 })
 
 router.post('/create', async (req, res) => {
-    let data = req.body.title
-    let token = req.headers.cookie
-    token = token.slice(6)
+    const data = req.body.title
+    const token = req.headers.cookie.split('=')[1]
     jwt.verify(token, keys.jwt, async function (err, decoded) {
         if (!err) {
-            const username = parseJwt(token).userName
-            await User.updateOne({ username }, { $push: { titles: data } }).lean()
+            await User.updateOne({ username: decoded.userName }, { $push: { titles: data } })
             res.redirect('/')
         } else {
             res.send(err)
@@ -49,8 +46,7 @@ router.post('/create', async (req, res) => {
 })
 
 router.get('/login', (req, res) => {
-    let token = req.headers.cookie
-    token = token.slice(6)
+    const token = req.headers.cookie.split('=')[1]
     jwt.verify(token, keys.jwt, function (err, decoded) {
         if (!err) {
             res.redirect('/')
@@ -97,17 +93,15 @@ router.get('/signup', (req, res) => {
 })
 
 router.post('/delete', (req, res) => {
-    let token = req.headers.cookie
-    token = token.slice(6)
+    const token = req.headers.cookie.split('=')[1]
     jwt.verify(token, keys.jwt, async function (err, decoded) {
         if (!err) {
-            const username = parseJwt(token).userName
-            let data = req.body.todos
+            const data = req.body.todos
             if (typeof data === 'string' && data !== null) {
-                await User.updateOne({ username }, {$pull: {titles: data}})
+                await User.updateOne({ username: decoded.userName }, { $pull: { titles: data } })
             }
             else {
-                await User.updateOne( {username}, {$pull: {titles: {$in: data}}  } )
+                await User.updateOne({ username: decoded.userName }, { $pull: { titles: { $in: data } } })
             }
             res.redirect('/')
         } else {
@@ -143,14 +137,12 @@ router.post('/signup', async (req, res) => {
 })
 
 router.get('/logout', async (req, res) => {
-    let token = req.headers.cookie
-    token = token.slice(6)
+    const token = req.headers.cookie.split('=')[1]
     jwt.verify(token, keys.jwt, function (err, decoded) {
         if (!err) {
-            const username = parseJwt(token).userName
             res.render('logout', {
                 title: 'Logout',
-                username,
+                username: decoded.userName,
                 isLogOut: true
             })
         } else {
