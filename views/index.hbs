@@ -1,25 +1,33 @@
-<h2>Todos page</h2>
-<form action="/delete" method="post" id="form1">
-    {{#if todos.length}}
 
-    <ul>
-        {{#each todos}}
-        <li class="todo">
-            <label>
-                <input type="checkbox" name="todos" value="{{this}}">
-                <span>{{this}}</span>
-            </label>
 
-        </li>
-</form>
-{{/each}}
-
-</ul>
-<button class="btn red darken-2 btn-small" type="submit" form="form1">Clear</button>
-
-{{else}}
-<p>No todos!</p>
-{{/if}}
-</form>
+<div style="border: thin solid black; margin: 20px 0px; padding: 0px 20px 30px; border-radius: 10px">
+    <h2>ToDoList</h2>
+    <form action="/delete" method="post" id="form1">
+        {{#if todos.length}}
+            <ul>
+                {{#each todos}}
+                    <li class="todo">
+                        <label>
+                            <input type="checkbox" name="todos" value="{{this}}">
+                            <span>{{this}}</span>
+                        </label>
+                    </li>
+                {{/each}}
+            </ul>
+            <button class="btn red darken-2 btn-small" type="submit" form="form1">Clear</button>
+        {{else}}
+            <h5 style="margin-left: 20px">No todos!</h5>
+        {{/if}}
+    </form>
+</div>
+<div style="border: thin solid black; margin: 10px 0px; padding: 0px 20px 25px; border-radius: 10px">
+    <h2>Create todo</h2>
+    <form action="/create" method="post">
+        <div class="input-field">
+            <input type="search" name="title">
+        </div>
+        <button type="submit" class="btn btn-small green darken-4">Create</button>
+    </form>
+</div>
 
 

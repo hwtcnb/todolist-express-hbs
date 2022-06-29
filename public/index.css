@@ -2,10 +2,6 @@
     margin-bottom: 1rem;
 }
 
-.todo span.completed {
-    text-decoration: line-through;
-}
-
 .todo label {
     width: 100%;
     display: flex;
@@ -14,8 +10,14 @@
     cursor: pointer;
     background: #f3f3f3;
     padding: 1rem;
+    overflow-x:hidden;
 }
 
 .todo i {
     z-index: 2;
 }
+
+span {
+    word-wrap: break-word;
+}
+

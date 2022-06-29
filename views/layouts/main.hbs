@@ -5,6 +5,16 @@
     <div class="container">
         {{{body}}}
     </div>
+
+    {{#if message}}
+    <div class="row" style="margin-top: 200px">
+        <div class="col s12 m2">
+            <div class="card-panel red">
+                <span class="white-text">{{message}}</span>
+            </div>
+        </div>
+    </div>
+    {{/if}}
 </body>
 
 </html>

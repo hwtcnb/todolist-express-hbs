@@ -5,8 +5,8 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const keys = require('../config/keys')
 
-const router = Router();
 
+const router = Router();
 
 function parseJwt(token) {
     return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
                 username
             })
         } else {
-            res.send(err)
+            res.redirect('/login')
         }
     })
 
@@ -48,36 +48,12 @@ router.post('/create', async (req, res) => {
     })
 })
 
-router.get('/create', (req, res) => {
-    let data = req.body.title
-    let token = req.headers.cookie
-    token = token.slice(6)
-    jwt.verify(token, keys.jwt, async function (err, decoded) {
-        if (!err) {
-            const username = parseJwt(token).userName
-            res.render('create', {
-                title: 'Create Todo',
-                isCreate: true,
-                username
-            })
-        } else {
-            res.send(err)
-        }
-    })
-})
-
-
 router.get('/login', (req, res) => {
     let token = req.headers.cookie
     token = token.slice(6)
     jwt.verify(token, keys.jwt, function (err, decoded) {
         if (!err) {
-            const username = parseJwt(token).userName
-            res.render('login', {
-                title: 'Logged in',
-                username,
-                isLogin: true
-            })
+            res.redirect('/')
         } else {
             res.render('login', {
                 title: 'Login',
@@ -92,11 +68,11 @@ router.post('/login', async (req, res) => {
         let { username, password } = req.body
         const user = await User.findOne({ username }).lean()
         if (!user) {
-            return res.status(400).json({ message: 'No such user' })
+            throw new Error('No such user')
         }
         const validPassword = bcrypt.compareSync(password, user.password)
         if (!validPassword) {
-            return res.status(400).json({ message: 'Wrong pass' })
+            throw new Error('Wrong password!')
         }
         let token = jwt.sign({
             userName: user.username,
@@ -105,7 +81,11 @@ router.post('/login', async (req, res) => {
         res.cookie('token', token)
         res.redirect('/')
     } catch (e) {
-        res.send(e)
+        res.render('login', {
+            title: 'Login',
+            isLogin: true,
+            message: e.message
+        })
     }
 })
 
@@ -141,15 +121,24 @@ router.post('/signup', async (req, res) => {
         let { username, password } = req.body
         const candidate = await User.findOne({ username })
         if (candidate) {
-            return res.status(400).json({ message: 'User existing' })
+            throw new Error('User existing')
         }
         password = bcrypt.hashSync(password, 7)
         const titles = []
         const user = new User({ username, password, titles })
         await user.save()
-        res.redirect('/login')
+        let token = jwt.sign({
+            userName: user.username,
+            userId: user._id
+        }, keys.jwt, { expiresIn: 60 * 60 })
+        res.cookie('token', token)
+        res.redirect('/')
     } catch (e) {
-        return res.send(e)
+        res.render('registration', {
+            title: 'Sign up',
+            isSignUp: true,
+            message: e.message
+        })
     }
 })
 
