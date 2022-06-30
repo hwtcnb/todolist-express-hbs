@@ -1,6 +1,5 @@
 const { Router } = require('express')
 const User = require('../models/User')
-const { ObjectId } = require('mongodb')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const keys = require('../config/keys')
