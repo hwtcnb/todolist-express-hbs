@@ -24,11 +24,9 @@ router.get('/', async (req, res) => {
             }
         })
     } catch {
-        res.cookie('token', null)
+        res.clearCookie('token')
         res.redirect('/login')
     }
-    
-
 })
 
 router.post('/create', async (req, res) => {
@@ -45,8 +43,9 @@ router.post('/create', async (req, res) => {
 })
 
 router.get('/login', (req, res) => {
-    const token = req.headers.cookie.split('=')[1]
-    jwt.verify(token, keys.jwt, function (err, decoded) {
+    try {
+        const token = req.headers.cookie.split('=')[1]
+        jwt.verify(token, keys.jwt, function (err, decoded) {
         if (!err) {
             res.redirect('/')
         } else {
@@ -56,6 +55,12 @@ router.get('/login', (req, res) => {
             })
         }
     })
+    } catch (error) {
+        res.render('login', {
+            title: 'Login',
+            isLogin: true
+        })
+    }
 })
 
 router.post('/login', async (req, res) => {
@@ -154,7 +159,7 @@ router.get('/logout', async (req, res) => {
 })
 
 router.post('/logout', async (req, res) => {
-    res.cookie('token', null)
+    res.clearCookie('token')
     res.redirect('/login')
 })
 
